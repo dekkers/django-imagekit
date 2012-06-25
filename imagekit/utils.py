@@ -122,7 +122,10 @@ def _format_to_extension(format):
     if format:
         for k, v in Image.EXTENSION.iteritems():
             if v == format.upper():
-                return k
+                if k == '.jpe':
+                    return '.jpg'
+                else:
+                    return k
     return None
 
 
