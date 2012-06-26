@@ -187,12 +187,12 @@ def invalidate_app_cache(apps):
 
 def validate_app_cache(apps, force_revalidation=False):
     for model in _get_models(apps):
+        model_name = '%s.%s' % (model._meta.app_label, model.__name__)
         for obj in model._default_manager.order_by('-pk'):
-            model_name = '%s.%s' % (model._meta.app_label, model.__name__)
             if force_revalidation:
-                print 'Invalidating & validating cache for "%s"' % model_name
+                print 'Invalidating & validating cache for "%s" %s' % (model_name, obj.pk)
             else:
-                print 'Validating cache for "%s"' % model_name
+                print 'Validating cache for "%s" %s' % (model_name, obj.pk)
             for f in get_spec_files(obj):
                 if force_revalidation:
                     f.invalidate()
