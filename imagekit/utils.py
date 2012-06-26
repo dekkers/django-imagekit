@@ -2,6 +2,7 @@ import os
 import mimetypes
 import sys
 import types
+import traceback
 
 from django.core.files.base import ContentFile
 from django.db.models.loading import cache
@@ -190,16 +191,19 @@ def invalidate_app_cache(apps):
 
 def validate_app_cache(apps, force_revalidation=False):
     for model in _get_models(apps):
+        model_name = '%s.%s' % (model._meta.app_label, model.__name__)
         for obj in model._default_manager.order_by('-pk'):
-            model_name = '%s.%s' % (model._meta.app_label, model.__name__)
             if force_revalidation:
-                print 'Invalidating & validating cache for "%s"' % model_name
+                print 'Invalidating & validating cache for "%s" %s' % (model_name, obj.pk)
             else:
-                print 'Validating cache for "%s"' % model_name
-            for f in get_spec_files(obj):
-                if force_revalidation:
-                    f.invalidate()
-                f.validate()
+                print 'Validating cache for "%s" %s' % (model_name, obj.pk)
+            try:
+                for f in get_spec_files(obj):
+                    if force_revalidation:
+                        f.invalidate()
+                    f.validate()
+            except:
+                traceback.print_exc()
 
 
 def suggest_extension(name, format):
